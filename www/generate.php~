@@ -1,0 +1,58 @@
+<?php
+// Configuration
+$CA_URL = "https://step-ca:9000";
+$PROVISIONER = "admin";
+$CA_PASSWORD = ""; // Doit correspondre à docker-compose.yml
+$CERT_DIR = "/var/www/html/certs";
+
+// Vérifier que le répertoire existe
+if (!is_dir($CERT_DIR)) {
+    mkdir($CERT_DIR, 0755, true);
+}
+
+// Récupérer le hostname
+if ($_SERVER['REQUEST_METHOD'] !== 'POST' || empty($_POST['hostname'])) {
+    header('Location: index.php?error=' . urlencode('Hostname manquant'));
+    exit;
+}
+
+$hostname = trim($_POST['hostname']);
+
+// Validation basique du hostname
+if (!preg_match('/^[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?)*$/', $hostname)) {
+    header('Location: index.php?error=' . urlencode('Hostname invalide'));
+    exit;
+}
+
+// Chemins des fichiers
+$certFile = $CERT_DIR . '/' . $hostname . '.crt';
+$keyFile = $CERT_DIR . '/' . $hostname . '.key';
+
+// Nettoyer les anciens certificats si ils existent
+if (file_exists($certFile)) unlink($certFile);
+if (file_exists($keyFile)) unlink($keyFile);
+
+// Commande pour générer le certificat via step-cli dans le conteneur
+$command = sprintf(
+    'docker exec step-cli step ca certificate %s /certs/%s.crt /certs/%s.key --provisioner %s --ca-url %s --root /home/step/certs/root_ca.crt --force 2>&1',
+    escapeshellarg($hostname),
+    escapeshellarg($hostname),
+    escapeshellarg($hostname),
+    escapeshellarg($PROVISIONER),
+    escapeshellarg($CA_URL)
+);
+
+// Exécuter la commande
+exec($command, $output, $returnCode);
+
+// Vérifier le résultat
+if ($returnCode !== 0 || !file_exists($certFile) || !file_exists($keyFile)) {
+    $error = implode("\n", $output);
+    header('Location: index.php?error=' . urlencode('Erreur lors de la génération : ' . $error));
+    exit;
+}
+
+// Succès
+header('Location: index.php?success=1&hostname=' . urlencode($hostname));
+exit;
+?>

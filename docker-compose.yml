@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  step-ca:
+    image: smallstep/step-ca:latest
+    container_name: step-ca
+    volumes:
+      - ./step-data:/home/step
+    ports:
+      - "9000:9000"
+    environment:
+      - DOCKER_STEPCA_INIT_NAME=VaulticaSH
+      - DOCKER_STEPCA_INIT_DNS_NAMES=step-ca,localhost
+      - DOCKER_STEPCA_INIT_PROVISIONER_NAME=admin
+      - DOCKER_STEPCA_INIT_PASSWORD=
+    networks:
+      - step-network
+    restart: unless-stopped
+
+  web-gui:
+    build: .
+    container_name: step-ca-gui
+    volumes:
+      - ./www:/var/www/html
+      - ./step-data:/home/step:ro
+    ports:
+      - "8080:80"
+    environment:
+      - CA_URL=https://step-ca:9000
+      - CA_PROVISIONER=admin
+      - CA_PASSWORD=VotreMotDePasseSecurise
+      - STEP_ROOT=/home/step/certs/root_ca.crt
+    networks:
+      - step-network
+    depends_on:
+      - step-ca
+    restart: unless-stopped
+
+networks:
+  step-network:
+    driver: bridge

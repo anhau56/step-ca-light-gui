@@ -1,0 +1,11 @@
+FROM smallstep/step-ca:latest
+
+USER root
+
+# Copier le script d'initialisation
+COPY init-step-ca.sh /usr/local/bin/init-step-ca.sh
+RUN chmod +x /usr/local/bin/init-step-ca.sh
+
+USER step
+
+ENTRYPOINT ["/usr/local/bin/init-step-ca.sh"]
