@@ -18,3 +18,4 @@ else
 fi
 
 exec step-ca /home/admin-ca/.step/config/ca.json
+# Test push
