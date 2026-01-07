@@ -17,4 +17,4 @@ else
     echo "Step CA déjà initialisé"
 fi
 
-exec step-ca /home/step/config/ca.json
+exec step-ca /home/admin-ca/.step/config/ca.json
