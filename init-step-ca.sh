@@ -8,7 +8,7 @@ if [ ! -f /home/step/config/ca.json ]; then
         --address=":9000" \
         --provisioner="admin" \
         --password-file= \
-        --provisioner-password-file=/dev/stdin 
+        --provisioner-password-file
     echo "Step CA initialisé!"
 else
     echo "Step CA déjà initialisé"
