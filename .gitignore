@@ -1,6 +1,17 @@
-; Source - https://stackoverflow.com/a
-; Posted by apitsch, modified by community. See post 'Timeline' for change history
-; Retrieved 2025-12-01, License - CC BY-SA 4.0
+# Step CA secrets - keep only encrypted files
+step-data/secrets/intermediate_ca_key
+step-data/secrets/root_ca_key
+step-data/secrets/password
+!step-data/secrets/*.enc
+
+# Generated certificates
+www/certs/
+
+# Database lock
+step-data/db/LOCK
+
+# macOS
+.DS_Store
 
 # -*- mode: gitignore; -*-
 *~

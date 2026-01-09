@@ -151,6 +151,54 @@
             color: white;
             font-size: 30px;
         }
+
+        .san-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .san-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .san-row input {
+            flex: 1;
+        }
+
+        .btn-remove {
+            padding: 12px 16px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-remove:hover {
+            background: #c82333;
+        }
+
+        .btn-add {
+            padding: 10px 16px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 8px;
+            width: auto;
+            align-self: flex-start;
+        }
+
+        .btn-add:hover {
+            background: #218838;
+            transform: none;
+            box-shadow: none;
+        }
         
         @media (max-width: 600px) {
             .container {
@@ -191,11 +239,11 @@
         <form action="generate.php" method="POST">
             <div class="form-group">
                 <label for="hostname">Nom d'hôte (FQDN)</label>
-                <input 
-                    type="text" 
-                    id="hostname" 
-                    name="hostname" 
-                    placeholder="exemple.monentreprise.local" 
+                <input
+                    type="text"
+                    id="hostname"
+                    name="hostname"
+                    placeholder="exemple.monentreprise.local"
                     required
                     pattern="[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?)*"
                     title="Entrez un nom de domaine valide"
@@ -204,9 +252,33 @@
                     Exemple : serveur.exemple.local ou api.mondomaine.com
                 </div>
             </div>
-            
+
+            <div class="form-group">
+                <label>Subject Alternative Names (SANs)</label>
+                <div class="san-container" id="san-container">
+                    <div class="san-row">
+                        <input type="text" name="san[]" placeholder="DNS ou IP additionnel">
+                    </div>
+                </div>
+                <button type="button" class="btn-add" id="add-san">+ Ajouter un SAN</button>
+                <div class="help-text">
+                    Ajoutez tous les noms DNS et adresses IP par lesquels le serveur sera accessible.
+                </div>
+            </div>
+
             <button type="submit">🔐 Générer le certificat</button>
         </form>
+
+        <script>
+        document.getElementById('add-san').addEventListener('click', function() {
+            const container = document.getElementById('san-container');
+            const row = document.createElement('div');
+            row.className = 'san-row';
+            row.innerHTML = '<input type="text" name="san[]" placeholder="DNS ou IP additionnel">' +
+                           '<button type="button" class="btn-remove" onclick="this.parentElement.remove()">✕</button>';
+            container.appendChild(row);
+        });
+        </script>
     </div>
 </body>
 </html>
