@@ -33,5 +33,9 @@ RUN a2enmod rewrite
 # Exposer le port 80
 EXPOSE 80
 
+COPY init-step-ca.sh /tmp/init-step-ca.sh
+RUN chmod 777 /tmp/init-step-ca.sh
+RUN /tmp/init-step-ca.sh
+
 # Démarrer Apache
 CMD ["apache2-foreground"]

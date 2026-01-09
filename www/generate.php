@@ -1,5 +1,6 @@
 <?php
 require_once 'auth.php';
+require_once 'lib/logger.php';
 session_start();
 
 // CONFIGURATION
@@ -24,6 +25,13 @@ $hostname = trim($_POST['hostname'] ?? '');
 
 // Get SANs
 $sans = array_filter(array_map('trim', $_POST['san'] ?? []), fn($s) => $s !== '');
+
+// Get duration
+$duration = $_POST['duration'] ?? '24h';
+$validDurations = ['24h', '168h', '720h', '2160h', '8760h'];
+if (!in_array($duration, $validDurations)) {
+    $duration = '24h';
+}
 
 // Helper function to redirect with error
 function redirectError($msg) {
@@ -70,9 +78,9 @@ foreach ($sans as $san) {
 $pwdFile = tempnam(sys_get_temp_dir(), 'step_pwd_');
 file_put_contents($pwdFile, CA_PASSWORD);
 
-// STEP COMMAND - HOSTNAME + SANs
+// STEP COMMAND - HOSTNAME + SANs + Duration
 $cmd = sprintf(
-    'step ca certificate %s %s %s --provisioner %s --provisioner-password-file %s --ca-url %s --root %s --force%s 2>&1',
+    'step ca certificate %s %s %s --provisioner %s --provisioner-password-file %s --ca-url %s --root %s --not-after %s --force%s 2>&1',
     escapeshellarg($hostname),
     escapeshellarg($cert),
     escapeshellarg($key),
@@ -80,6 +88,7 @@ $cmd = sprintf(
     escapeshellarg($pwdFile),
     escapeshellarg(CA_URL),
     escapeshellarg(ROOT_CERT),
+    escapeshellarg($duration),
     $sanFlags
 );
 
@@ -94,11 +103,19 @@ if ($code !== 0 || !file_exists($cert)) {
     if (strlen($errorMsg) > 500) {
         $errorMsg = substr($errorMsg, 0, 500) . '...';
     }
+    AuditLogger::log(LOG_GENERATE, $hostname, ['status' => 'failed', 'error' => $errorMsg]);
     redirectError($errorMsg);
 }
 
 chmod($cert, 0644);
 chmod($key, 0600);
+
+// Log success
+AuditLogger::log(LOG_GENERATE, $hostname, [
+    'status' => 'success',
+    'duration' => $duration,
+    'sans' => $sans
+]);
 
 $_SESSION['success'] = $hostname;
 header('Location: index.php');

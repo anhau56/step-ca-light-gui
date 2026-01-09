@@ -11,224 +11,19 @@ unset($_SESSION['success'], $_SESSION['error']);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Certificate Generator - Step CA</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        
-        .container {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            max-width: 500px;
-            width: 100%;
-            padding: 40px;
-        }
-        
-        h1 {
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 28px;
-        }
-        
-        .subtitle {
-            color: #666;
-            margin-bottom: 30px;
-            font-size: 14px;
-        }
-        
-        .form-group {
-            margin-bottom: 25px;
-        }
-        
-        label {
-            display: block;
-            color: #333;
-            font-weight: 600;
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
-        
-        input[type="text"] {
-            width: 100%;
-            padding: 12px 16px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-        
-        input[type="text"]:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        
-        .help-text {
-            font-size: 12px;
-            color: #999;
-            margin-top: 5px;
-        }
-        
-        button {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
-        }
-        
-        button:active {
-            transform: translateY(0);
-        }
-        
-        .alert {
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 14px;
-        }
-        
-        .alert-success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        
-        .alert-error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        
-        .download-links {
-            margin-top: 15px;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 8px;
-        }
-        
-        .download-links a {
-            display: inline-block;
-            margin: 5px 10px 5px 0;
-            padding: 8px 16px;
-            background: #667eea;
-            color: white;
-            text-decoration: none;
-            border-radius: 6px;
-            font-size: 14px;
-            transition: background 0.3s;
-        }
-        
-        .download-links a:hover {
-            background: #5568d3;
-        }
-        
-        .icon {
-            display: inline-block;
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 50%;
-            margin: 0 auto 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 30px;
-        }
-
-        .san-container {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .san-row {
-            display: flex;
-            gap: 8px;
-        }
-
-        .san-row input {
-            flex: 1;
-        }
-
-        .btn-remove {
-            width: auto;
-            min-width: 40px;
-            padding: 12px 16px;
-            background: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            flex-shrink: 0;
-        }
-
-        .btn-remove:hover {
-            background: #c82333;
-            transform: none;
-            box-shadow: none;
-        }
-
-        .btn-add {
-            padding: 10px 16px;
-            background: #28a745;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            margin-top: 8px;
-            width: auto;
-            align-self: flex-start;
-        }
-
-        .btn-add:hover {
-            background: #218838;
-            transform: none;
-            box-shadow: none;
-        }
-        
-        @media (max-width: 600px) {
-            .container {
-                padding: 30px 20px;
-            }
-            
-            h1 {
-                font-size: 24px;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <div class="container">
-        <div class="icon">🔒</div>
-        <h1>Certificate Generator</h1>
-        <p class="subtitle">Generate a TLS certificate for your server</p>
-        
+        <div class="header">
+            <div class="header-content">
+                <div class="icon">🔒</div>
+                <h1>Certificate Generator</h1>
+                <p class="subtitle">Generate a TLS certificate for your server</p>
+            </div>
+            <button type="button" class="theme-toggle" id="theme-toggle" title="Toggle theme">🌙</button>
+        </div>
+
         <?php
         if ($success) {
             $hostname = htmlspecialchars($success);
@@ -247,7 +42,7 @@ unset($_SESSION['success'], $_SESSION['error']);
             echo '</div>';
         }
         ?>
-        
+
         <form action="generate.php" method="POST">
             <div class="form-group">
                 <label for="hostname">Hostname (FQDN)</label>
@@ -278,24 +73,30 @@ unset($_SESSION['success'], $_SESSION['error']);
                 </div>
             </div>
 
-            <button type="submit">🔐 Generate Certificate</button>
+            <div class="form-group">
+                <label for="duration">Certificate Validity</label>
+                <select id="duration" name="duration">
+                    <option value="24h" selected>24 hours (default)</option>
+                    <option value="168h">7 days</option>
+                    <option value="720h">30 days</option>
+                    <option value="2160h">90 days</option>
+                    <option value="8760h">1 year</option>
+                </select>
+                <div class="help-text">
+                    How long the certificate will be valid. Shorter durations are more secure.
+                </div>
+            </div>
+
+            <button type="submit" class="full-width">🔐 Generate Certificate</button>
         </form>
 
-        <script>
-        document.getElementById('add-san').addEventListener('click', function() {
-            const container = document.getElementById('san-container');
-            const row = document.createElement('div');
-            row.className = 'san-row';
-            row.innerHTML = '<input type="text" name="san[]" placeholder="Additional DNS or IP">' +
-                           '<button type="button" class="btn-remove" onclick="this.parentElement.remove()">✕</button>';
-            container.appendChild(row);
-        });
-        </script>
-
-        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; text-align: center;">
-            <a href="download-cert.php" style="color: #667eea; font-size: 14px; margin-right: 20px;">My Certificates</a>
-            <a href="download-ca.php" style="color: #667eea; font-size: 14px;">Download CA Certificates</a>
+        <div class="nav-links">
+            <a href="download-cert.php">My Certificates</a>
+            <a href="download-ca.php">CA Certificates</a>
+            <a href="logs.php">Audit Logs</a>
         </div>
     </div>
+
+    <script src="js/app.js"></script>
 </body>
 </html>

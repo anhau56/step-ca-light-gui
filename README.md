@@ -1,13 +1,18 @@
 # Step CA GUI
 
-A simple web interface for managing certificates with [Smallstep CA](https://smallstep.com/docs/step-ca).
+A web interface for managing certificates with [Smallstep CA](https://smallstep.com/docs/step-ca).
 
 ## Features
 
-- Generate TLS certificates with custom hostnames
-- Support for Subject Alternative Names (SANs) - DNS names and IP addresses
-- Download generated certificates and private keys
-- Simple and clean web interface
+- Generate TLS certificates with custom hostnames and SANs
+- Configurable certificate validity (24h to 1 year)
+- Certificate management: view details, renew, revoke, delete
+- Export certificates as PFX/P12 for Windows/Java
+- Search and filter certificates
+- Dark mode support
+- Audit logging of all operations
+- REST API for automation
+- Password-protected interface (except CA downloads)
 
 ## Prerequisites
 
@@ -41,7 +46,7 @@ A simple web interface for managing certificates with [Smallstep CA](https://sma
 
 ## Fresh Installation
 
-If you want to initialize a new CA (instead of using existing secrets):
+If you want to initialize a new CA:
 
 1. Remove existing step-data:
    ```bash
@@ -53,21 +58,7 @@ If you want to initialize a new CA (instead of using existing secrets):
    docker compose up -d
    ```
 
-3. Get the generated admin password from logs:
-   ```bash
-   docker logs step-ca 2>&1 | grep "administrative password"
-   ```
-
-4. Update `docker-compose.yml` with the password:
-   ```yaml
-   environment:
-     - CA_PASSWORD=<your-password-here>
-   ```
-
-5. Recreate the web container:
-   ```bash
-   docker compose up -d --force-recreate web-gui
-   ```
+3. The password is automatically saved in `step-data/secrets/password`
 
 ## Configuration
 
@@ -77,8 +68,89 @@ Environment variables in `docker-compose.yml`:
 |----------|-------------|---------|
 | `CA_URL` | Step CA server URL | `https://step-ca:9000` |
 | `CA_PROVISIONER` | Provisioner name | `admin` |
-| `CA_PASSWORD` | Provisioner password | - |
+| `CA_PASSWORD_FILE` | Path to password file | `/home/step/secrets/password` |
 | `STEP_ROOT` | Path to root CA certificate | `/home/step/certs/root_ca.crt` |
+
+## Authentication
+
+The web interface is password protected (except for CA certificate downloads).
+
+**Default credentials:** `admin` / `admin`
+
+### Managing Users
+
+The password file is located at `www/.passwd`. Format: `username:password_hash`
+
+```bash
+# Add a new user
+php -r "echo 'newuser:' . password_hash('newpassword', PASSWORD_DEFAULT) . PHP_EOL;" >> www/.passwd
+
+# Generate new password hash
+php -r "echo password_hash('newpassword', PASSWORD_DEFAULT);"
+```
+
+## REST API
+
+The API supports both API Key and Basic Auth authentication.
+
+### Setup API Keys
+
+```bash
+# Generate a random API key
+openssl rand -hex 32
+
+# Add to www/.apikeys file
+echo "myapp:your_generated_key_here" >> www/.apikeys
+```
+
+### Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/certificates` | List all certificates |
+| POST | `/api/certificates` | Generate new certificate |
+| GET | `/api/certificates/{name}` | Get certificate details |
+| DELETE | `/api/certificates/{name}` | Delete certificate |
+| POST | `/api/certificates/{name}/revoke` | Revoke certificate |
+| POST | `/api/certificates/{name}/renew` | Renew certificate |
+| POST | `/api/certificates/{name}/export` | Export as PFX |
+
+### Examples
+
+```bash
+# List certificates
+curl -H "X-API-Key: your_key" http://localhost:8080/api/certificates
+
+# Generate certificate
+curl -X POST -H "X-API-Key: your_key" -H "Content-Type: application/json" \
+  -d '{"hostname":"server.example.com","sans":["192.168.1.100"],"duration":"720h"}' \
+  http://localhost:8080/api/certificates
+
+# Get details
+curl -H "X-API-Key: your_key" http://localhost:8080/api/certificates/server.example.com
+
+# Export PFX
+curl -X POST -H "X-API-Key: your_key" -H "Content-Type: application/json" \
+  -d '{"password":"export123"}' \
+  http://localhost:8080/api/certificates/server.example.com/export -o cert.p12
+
+# Delete
+curl -X DELETE -H "X-API-Key: your_key" \
+  http://localhost:8080/api/certificates/server.example.com
+```
+
+## Audit Logs
+
+All operations are logged to `www/logs/audit.json`. View logs at http://localhost:8080/logs.php
+
+Logged actions:
+- Certificate generation
+- Certificate download
+- Certificate deletion
+- Certificate revocation
+- Certificate renewal
+- PFX export
+- API access
 
 ## Architecture
 
@@ -97,33 +169,11 @@ Environment variables in `docker-compose.yml`:
                         └─────────────────┘
 ```
 
-## Authentication
-
-The web interface is password protected (except for CA certificate downloads).
-
-Default credentials: `admin` / `admin`
-
-### Managing Users
-
-The password file is located at `www/.passwd`. Format: `username:password_hash`
-
-**Add a new user:**
-```bash
-# Generate password hash
-php -r "echo 'newuser:' . password_hash('newpassword', PASSWORD_DEFAULT) . PHP_EOL;" >> www/.passwd
-```
-
-**Change password:**
-```bash
-# Generate new hash and replace in .passwd file
-php -r "echo password_hash('newpassword', PASSWORD_DEFAULT);"
-```
-
 ## Security Notes
 
 - CA private keys are stored encrypted (AES-256-CBC) in the repository
 - Unencrypted keys are excluded from git via `.gitignore`
-- The provisioner password should be kept secure and not committed in plain text
+- Password and API key files are excluded from git
 - Generated certificates are stored in `www/certs/` (excluded from git)
 
 ## Encrypting Secrets

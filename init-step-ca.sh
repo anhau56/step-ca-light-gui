@@ -85,4 +85,4 @@ else
 fi
 
 # Start Step CA
-exec step-ca "$CONFIG_FILE" --password-file="$PASSWORD_FILE"
+exec /usr/local/bin/step-ca "$CONFIG_FILE" --password-file="$PASSWORD_FILE"

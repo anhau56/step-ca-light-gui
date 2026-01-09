@@ -7,11 +7,17 @@ step-data/secrets/password
 # Generated certificates
 www/certs/
 
+# Audit logs
+www/logs/
+
 # Database lock
 step-data/db/LOCK
 
 # Password file (keep .passwd.example)
 www/.passwd
+
+# API keys file (keep .apikeys.example)
+www/.apikeys
 
 # macOS
 .DS_Store

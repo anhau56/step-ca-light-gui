@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   step-ca:
     image: smallstep/step-ca:latest
@@ -11,7 +9,7 @@ services:
     ports:
       - "9000:9000"
     environment:
-      - CA_NAME=Vaultica CA
+      - CA_NAME="Vaultica Intern CA"
       - CA_DNS=step-ca,localhost
       - CA_PROVISIONER=admin
     networks:
