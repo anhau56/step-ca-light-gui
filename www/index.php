@@ -168,6 +168,8 @@
         }
 
         .btn-remove {
+            width: auto;
+            min-width: 40px;
             padding: 12px 16px;
             background: #dc3545;
             color: white;
@@ -175,10 +177,13 @@
             border-radius: 8px;
             cursor: pointer;
             font-size: 14px;
+            flex-shrink: 0;
         }
 
         .btn-remove:hover {
             background: #c82333;
+            transform: none;
+            box-shadow: none;
         }
 
         .btn-add {
@@ -281,6 +286,7 @@
         </script>
 
         <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; text-align: center;">
+            <a href="download-cert.php" style="color: #667eea; font-size: 14px; margin-right: 20px;">My Certificates</a>
             <a href="download-ca.php" style="color: #667eea; font-size: 14px;">Download CA Certificates</a>
         </div>
     </div>
