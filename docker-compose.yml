@@ -6,13 +6,14 @@ services:
     container_name: step-ca
     volumes:
       - ./step-data:/home/step
+      - ./init-step-ca.sh:/init-step-ca.sh:ro
+    entrypoint: /init-step-ca.sh
     ports:
       - "9000:9000"
     environment:
-      - DOCKER_STEPCA_INIT_NAME=VaulticaSH
-      - DOCKER_STEPCA_INIT_DNS_NAMES=step-ca,localhost
-      - DOCKER_STEPCA_INIT_PROVISIONER_NAME=admin
-      - DOCKER_STEPCA_INIT_PASSWORD=
+      - CA_NAME=Vaultica CA
+      - CA_DNS=step-ca,localhost
+      - CA_PROVISIONER=admin
     networks:
       - step-network
     restart: unless-stopped
@@ -28,7 +29,7 @@ services:
     environment:
       - CA_URL=https://step-ca:9000
       - CA_PROVISIONER=admin
-      - CA_PASSWORD=Jjo10QsYSQrTgc5oVVops3RtnF2JvTQt3odvWsgT
+      - CA_PASSWORD_FILE=/home/step/secrets/password
       - STEP_ROOT=/home/step/certs/root_ca.crt
     networks:
       - step-network

@@ -1,4 +1,6 @@
 <?php
+require_once 'auth.php';
+
 $CERT_DIR = '/var/www/html/certs';
 
 // Handle download

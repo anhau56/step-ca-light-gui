@@ -1,9 +1,16 @@
+<?php
+require_once 'auth.php';
+session_start();
+$success = $_SESSION['success'] ?? null;
+$error = $_SESSION['error'] ?? null;
+unset($_SESSION['success'], $_SESSION['error']);
+?>
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Générateur de Certificats - Step CA</title>
+    <title>Certificate Generator - Step CA</title>
     <style>
         * {
             margin: 0;
@@ -219,42 +226,42 @@
 <body>
     <div class="container">
         <div class="icon">🔒</div>
-        <h1>Générateur de Certificats</h1>
-        <p class="subtitle">Générez un certificat TLS pour votre serveur</p>
+        <h1>Certificate Generator</h1>
+        <p class="subtitle">Generate a TLS certificate for your server</p>
         
         <?php
-        if (isset($_GET['success']) && $_GET['success'] == '1') {
-            $hostname = htmlspecialchars($_GET['hostname']);
+        if ($success) {
+            $hostname = htmlspecialchars($success);
             echo '<div class="alert alert-success">';
-            echo '✓ Certificat généré avec succès pour <strong>' . $hostname . '</strong>';
+            echo '✓ Certificate successfully generated for <strong>' . $hostname . '</strong>';
             echo '<div class="download-links">';
-            echo '<a href="download.php?file=' . urlencode($hostname) . '.crt">📥 Télécharger le certificat</a>';
-            echo '<a href="download.php?file=' . urlencode($hostname) . '.key">📥 Télécharger la clé privée</a>';
+            echo '<a href="download.php?file=' . urlencode($hostname) . '.crt">📥 Download Certificate</a>';
+            echo '<a href="download.php?file=' . urlencode($hostname) . '.key">📥 Download Private Key</a>';
             echo '</div>';
             echo '</div>';
         }
-        
-        if (isset($_GET['error'])) {
+
+        if ($error) {
             echo '<div class="alert alert-error">';
-            echo '✗ Erreur : ' . htmlspecialchars($_GET['error']);
+            echo '✗ Error: ' . htmlspecialchars($error);
             echo '</div>';
         }
         ?>
         
         <form action="generate.php" method="POST">
             <div class="form-group">
-                <label for="hostname">Nom d'hôte (FQDN)</label>
+                <label for="hostname">Hostname (FQDN)</label>
                 <input
                     type="text"
                     id="hostname"
                     name="hostname"
-                    placeholder="exemple.monentreprise.local"
+                    placeholder="server.example.local"
                     required
                     pattern="[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?)*"
-                    title="Entrez un nom de domaine valide"
+                    title="Enter a valid domain name"
                 >
                 <div class="help-text">
-                    Exemple : serveur.exemple.local ou api.mondomaine.com
+                    Example: server.example.local or api.mydomain.com
                 </div>
             </div>
 
@@ -262,16 +269,16 @@
                 <label>Subject Alternative Names (SANs)</label>
                 <div class="san-container" id="san-container">
                     <div class="san-row">
-                        <input type="text" name="san[]" placeholder="DNS ou IP additionnel">
+                        <input type="text" name="san[]" placeholder="Additional DNS or IP" required>
                     </div>
                 </div>
-                <button type="button" class="btn-add" id="add-san">+ Ajouter un SAN</button>
+                <button type="button" class="btn-add" id="add-san">+ Add SAN</button>
                 <div class="help-text">
-                    Ajoutez tous les noms DNS et adresses IP par lesquels le serveur sera accessible.
+                    Add all DNS names and IP addresses through which the server will be accessible.
                 </div>
             </div>
 
-            <button type="submit">🔐 Générer le certificat</button>
+            <button type="submit">🔐 Generate Certificate</button>
         </form>
 
         <script>
@@ -279,7 +286,7 @@
             const container = document.getElementById('san-container');
             const row = document.createElement('div');
             row.className = 'san-row';
-            row.innerHTML = '<input type="text" name="san[]" placeholder="DNS ou IP additionnel">' +
+            row.innerHTML = '<input type="text" name="san[]" placeholder="Additional DNS or IP">' +
                            '<button type="button" class="btn-remove" onclick="this.parentElement.remove()">✕</button>';
             container.appendChild(row);
         });

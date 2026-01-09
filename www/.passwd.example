@@ -1,0 +1,6 @@
+# Password file for Step CA GUI
+# Format: username:password_hash
+# Generate hash with: php -r "echo password_hash('yourpassword', PASSWORD_DEFAULT);"
+#
+# Example entry (user: admin, password: admin):
+# admin:$2y$10$EP6p.O6Sfbl/4.JiVJ4pnuRE/XEGxhk27nX51vDJx7ME/k1hwLfg6

@@ -10,6 +10,9 @@ www/certs/
 # Database lock
 step-data/db/LOCK
 
+# Password file (keep .passwd.example)
+www/.passwd
+
 # macOS
 .DS_Store
 

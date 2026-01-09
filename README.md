@@ -97,6 +97,28 @@ Environment variables in `docker-compose.yml`:
                         └─────────────────┘
 ```
 
+## Authentication
+
+The web interface is password protected (except for CA certificate downloads).
+
+Default credentials: `admin` / `admin`
+
+### Managing Users
+
+The password file is located at `www/.passwd`. Format: `username:password_hash`
+
+**Add a new user:**
+```bash
+# Generate password hash
+php -r "echo 'newuser:' . password_hash('newpassword', PASSWORD_DEFAULT) . PHP_EOL;" >> www/.passwd
+```
+
+**Change password:**
+```bash
+# Generate new hash and replace in .passwd file
+php -r "echo password_hash('newpassword', PASSWORD_DEFAULT);"
+```
+
 ## Security Notes
 
 - CA private keys are stored encrypted (AES-256-CBC) in the repository
