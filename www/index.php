@@ -279,6 +279,10 @@
             container.appendChild(row);
         });
         </script>
+
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; text-align: center;">
+            <a href="download-ca.php" style="color: #667eea; font-size: 14px;">Download CA Certificates</a>
+        </div>
     </div>
 </body>
 </html>
