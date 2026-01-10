@@ -108,7 +108,7 @@ unset($_SESSION['success'], $_SESSION['error']);
     <div class="container wide">
         <div class="header">
             <div class="header-content">
-                <img src="images/logo.png" alt="Vaultica" class="logo">
+                <div class="icon">📜</div>
                 <h1>My Certificates</h1>
                 <p class="subtitle">Download and manage your generated certificates</p>
             </div>

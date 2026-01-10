@@ -78,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Vaultica CA</title>
+    <title>Login - Step CA</title>
     <link rel="stylesheet" href="css/style.css">
     <style>
         .login-container {
@@ -203,7 +203,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="container login-container">
         <div class="login-box">
             <div class="login-header">
-                <img src="images/logo.png" alt="Vaultica" class="logo">
+                <div class="icon">🔐</div>
                 <h1>Welcome Back</h1>
                 <p>Sign in to manage your certificates</p>
             </div>

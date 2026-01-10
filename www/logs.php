@@ -42,7 +42,7 @@ $users = AuditLogger::getUsers();
     <div class="container wide">
         <div class="header">
             <div class="header-content">
-                <img src="images/logo.png" alt="Vaultica" class="logo">
+                <div class="icon">📋</div>
                 <h1>Audit Logs</h1>
                 <p class="subtitle">View all certificate operations</p>
             </div>

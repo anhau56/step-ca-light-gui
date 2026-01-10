@@ -1,8 +1,5 @@
-# Step CA secrets - keep only encrypted files
-step-data/secrets/intermediate_ca_key
-step-data/secrets/root_ca_key
-step-data/secrets/password
-!step-data/secrets/*.enc
+# Step CA data (generated at runtime)
+step-data/
 
 # Generated certificates
 www/certs/
@@ -10,17 +7,14 @@ www/certs/
 # Audit logs
 www/logs/
 
-# Database lock
-step-data/db/LOCK
-
-# Password file (keep .passwd.example)
+# Password file
 www/.passwd
 
-# API keys file (keep .apikeys.example)
+# API keys file
 www/.apikeys
 
 # macOS
 .DS_Store
 
-# Backup files (ending with ~)
+# Backup files
 *~

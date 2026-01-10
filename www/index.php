@@ -16,7 +16,7 @@ unset($_SESSION['success'], $_SESSION['error']);
     <div class="container">
         <div class="header">
             <div class="header-content">
-                <img src="images/logo.png" alt="Vaultica" class="logo">
+                <div class="icon">🔐</div>
                 <h1>Certificate Generator</h1>
                 <p class="subtitle">Generate a TLS certificate for your server</p>
             </div>

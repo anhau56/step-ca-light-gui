@@ -9,7 +9,7 @@ services:
     ports:
       - "9000:9000"
     environment:
-      - CA_NAME="Vaultica Intern CA"
+      - CA_NAME=Step CA
       - CA_DNS=step-ca,localhost
       - CA_PROVISIONER=admin
     networks:

@@ -7,7 +7,7 @@ PASSWORD_FILE="$STEP_PATH/secrets/password"
 SECRETS_DIR="$STEP_PATH/secrets"
 
 # CA Configuration (can be overridden by environment variables)
-CA_NAME="${CA_NAME:-Vaultica CA}"
+CA_NAME="${CA_NAME:-Step CA}"
 CA_DNS="${CA_DNS:-step-ca,localhost}"
 CA_ADDRESS="${CA_ADDRESS:-:9000}"
 CA_PROVISIONER="${CA_PROVISIONER:-admin}"

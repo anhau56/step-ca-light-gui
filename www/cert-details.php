@@ -120,7 +120,7 @@ if ($format === 'json') {
     <div class="container">
         <div class="header">
             <div class="header-content">
-                <img src="images/logo.png" alt="Vaultica" class="logo">
+                <div class="icon">📋</div>
                 <h1>Certificate Details</h1>
                 <p class="subtitle"><?= htmlspecialchars($name) ?></p>
             </div>

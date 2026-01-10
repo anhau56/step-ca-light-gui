@@ -1,9 +1,9 @@
-/* CSS Variables for theming - Vaultica colors */
+/* CSS Variables for theming */
 :root {
-    /* Vaultica Colors */
-    --vaultica-navy: #0f1a42;
-    --vaultica-green: #65bc7b;
-    --vaultica-green-dark: #4fa366;
+    /* Brand Colors */
+    --brand-navy: #0f1a42;
+    --brand-green: #65bc7b;
+    --brand-green-dark: #4fa366;
 
     /* Colors */
     --primary-start: #65bc7b;

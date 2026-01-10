@@ -1,8 +1,6 @@
-# Vaultica CA GUI
+# Step CA Light GUI
 
-A web interface for managing certificates with [Smallstep CA](https://smallstep.com/docs/step-ca).
-
-![Vaultica](www/images/logo.png)
+A lightweight web interface for managing certificates with [Smallstep CA](https://smallstep.com/docs/step-ca).
 
 ## Features
 
@@ -12,10 +10,15 @@ A web interface for managing certificates with [Smallstep CA](https://smallstep.
 - Export certificates as PFX/P12 for Windows/Java
 - Search and filter certificates
 - Dark mode support
-- Audit logging of all operations (login, logout, certificate actions)
+- Audit logging of all operations
 - REST API for automation
 - Session-based authentication with login page
 - User management via CLI
+
+## Screenshots
+
+![Certificate Generator](docs/screenshot-generator.png)
+![Certificate List](docs/screenshot-list.png)
 
 ## Prerequisites
 
@@ -26,52 +29,23 @@ A web interface for managing certificates with [Smallstep CA](https://smallstep.
 
 1. **Clone the repository**
    ```bash
-   git clone https://gitlab.safehost.com/linux/step-ca-gui.git
-   cd step-ca-gui
+   git clone https://github.com/needsone/step-ca-light-gui.git
+   cd step-ca-light-gui
    ```
 
-2. **Decrypt the CA secrets** (if using existing CA)
-   ```bash
-   cd step-data/secrets
-   openssl enc -aes-256-cbc -d -pbkdf2 -in intermediate_ca_key.enc -out intermediate_ca_key
-   openssl enc -aes-256-cbc -d -pbkdf2 -in root_ca_key.enc -out root_ca_key
-   openssl enc -aes-256-cbc -d -pbkdf2 -in password.enc -out password
-   ```
-
-3. **Start the services**
+2. **Start the services**
    ```bash
    docker compose up -d
    ```
 
-4. **Create an admin user**
+3. **Create an admin user**
    ```bash
    docker exec -it step-ca-gui php /var/www/html/user-cli.php add admin
    ```
 
-5. **Access the web interface**
+4. **Access the web interface**
 
    Open http://localhost:8080 in your browser.
-
-## Fresh Installation
-
-If you want to initialize a new CA:
-
-1. Remove existing step-data:
-   ```bash
-   rm -rf step-data/*
-   ```
-
-2. Start the services - step-ca will auto-initialize:
-   ```bash
-   docker compose up -d
-   ```
-
-3. The CA password is automatically saved in `step-data/secrets/password`
-
-4. Create your first user:
-   ```bash
-   docker exec -it step-ca-gui php /var/www/html/user-cli.php add admin
-   ```
 
 ## Configuration
 
@@ -83,6 +57,7 @@ Environment variables in `docker-compose.yml`:
 | `CA_PROVISIONER` | Provisioner name | `admin` |
 | `CA_PASSWORD_FILE` | Path to password file | `/home/step/secrets/password` |
 | `STEP_ROOT` | Path to root CA certificate | `/home/step/certs/root_ca.crt` |
+| `CA_NAME` | Name of the CA | `Step CA` |
 
 ### Certificate Duration
 
@@ -93,7 +68,7 @@ The CA is configured with:
 
 ## Authentication
 
-The web interface uses session-based authentication with a login page. CA certificate downloads remain public.
+The web interface uses session-based authentication with a login page. CA certificate downloads remain public (for easy client setup).
 
 ### User Management CLI
 
@@ -111,9 +86,6 @@ docker exec -it step-ca-gui php /var/www/html/user-cli.php delete <username>
 
 # List all users
 docker exec -it step-ca-gui php /var/www/html/user-cli.php list
-
-# Generate password hash (for scripting)
-docker exec step-ca-gui php /var/www/html/user-cli.php hash 'mypassword'
 ```
 
 ### Password Requirements
@@ -122,11 +94,9 @@ docker exec step-ca-gui php /var/www/html/user-cli.php hash 'mypassword'
 - Username must start with a letter
 - Username can contain letters, numbers, underscores and hyphens
 
-### Password File
+### Open Access Mode
 
-Users are stored in `www/.passwd` with format: `username:password_hash`
-
-If no users exist, authentication is disabled (open access).
+If no users exist in the password file, authentication is disabled (open access).
 
 ## REST API
 
@@ -211,30 +181,55 @@ Logged actions:
 
 ## Security Notes
 
-- CA private keys are stored encrypted (AES-256-CBC) in the repository
-- Unencrypted keys are excluded from git via `.gitignore`
-- Password and API key files are excluded from git
-- Generated certificates are stored in `www/certs/` (excluded from git)
+- Passwords are hashed with bcrypt
 - Session cookies are HTTP-only
-- Passwords are hashed with bcrypt (PASSWORD_DEFAULT)
+- CA private keys should be kept secure
+- Password and API key files are excluded from git
+- Generated certificates are stored in `www/certs/`
 
-## Encrypting Secrets
+## Development
 
-To encrypt secrets before committing:
+### Project Structure
 
-```bash
-cd step-data/secrets
-openssl enc -aes-256-cbc -salt -pbkdf2 -in intermediate_ca_key -out intermediate_ca_key.enc
-openssl enc -aes-256-cbc -salt -pbkdf2 -in root_ca_key -out root_ca_key.enc
-openssl enc -aes-256-cbc -salt -pbkdf2 -in password -out password.enc
+```
+├── docker-compose.yml    # Docker services configuration
+├── Dockerfile            # Web GUI container
+├── init-step-ca.sh       # CA initialization script
+├── www/                  # Web application
+│   ├── index.php         # Certificate generator
+│   ├── login.php         # Login page
+│   ├── download-cert.php # Certificate list
+│   ├── cert-details.php  # Certificate details
+│   ├── logs.php          # Audit logs viewer
+│   ├── api/              # REST API
+│   ├── css/              # Stylesheets
+│   ├── js/               # JavaScript
+│   └── lib/              # PHP libraries
+└── step-data/            # CA data (gitignored)
 ```
 
-## Version History
+### Running Locally
 
-- **v0.3** - Vaultica branding, session-based authentication, user management CLI
-- **v0.2** - Certificate revocation, renewal, duration configuration
-- **v0.1** - Initial release with basic certificate generation
+```bash
+# Build and start
+docker compose up -d --build
+
+# View logs
+docker compose logs -f
+
+# Stop
+docker compose down
+```
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
-Internal use only - Vaultica
+MIT License - see [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+- [Smallstep](https://smallstep.com/) for the excellent Step CA
+- All contributors to this project

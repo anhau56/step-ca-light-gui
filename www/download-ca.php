@@ -50,7 +50,7 @@ $intermediateInfo = getCertInfo($INTERMEDIATE_CERT);
     <div class="container">
         <div class="header">
             <div class="header-content">
-                <img src="images/logo.png" alt="Vaultica" class="logo">
+                <div class="icon">🏛️</div>
                 <h1>CA Certificates</h1>
                 <p class="subtitle">Download and install the CA certificates to trust issued certificates</p>
             </div>
