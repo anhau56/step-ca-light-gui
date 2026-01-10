@@ -76,11 +76,11 @@ unset($_SESSION['success'], $_SESSION['error']);
             <div class="form-group">
                 <label for="duration">Certificate Validity</label>
                 <select id="duration" name="duration">
-                    <option value="24h" selected>24 hours (default)</option>
+                    <option value="24h">24 hours</option>
                     <option value="168h">7 days</option>
                     <option value="720h">30 days</option>
                     <option value="2160h">90 days</option>
-                    <option value="8760h">1 year</option>
+                    <option value="8760h" selected>1 year (default)</option>
                 </select>
                 <div class="help-text">
                     How long the certificate will be valid. Shorter durations are more secure.

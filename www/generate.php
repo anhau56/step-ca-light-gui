@@ -27,10 +27,10 @@ $hostname = trim($_POST['hostname'] ?? '');
 $sans = array_filter(array_map('trim', $_POST['san'] ?? []), fn($s) => $s !== '');
 
 // Get duration
-$duration = $_POST['duration'] ?? '24h';
+$duration = $_POST['duration'] ?? '8760h';
 $validDurations = ['24h', '168h', '720h', '2160h', '8760h'];
 if (!in_array($duration, $validDurations)) {
-    $duration = '24h';
+    $duration = '8760h';
 }
 
 // Helper function to redirect with error

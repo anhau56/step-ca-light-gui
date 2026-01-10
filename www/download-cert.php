@@ -4,6 +4,23 @@ require_once 'lib/logger.php';
 session_start();
 
 $CERT_DIR = '/var/www/html/certs';
+$REVOKED_FILE = '/var/www/html/certs/.revoked.json';
+
+// Get list of revoked certificates
+function getRevokedCerts() {
+    global $REVOKED_FILE;
+    if (!file_exists($REVOKED_FILE)) {
+        return [];
+    }
+    $data = json_decode(file_get_contents($REVOKED_FILE), true);
+    return is_array($data) ? $data : [];
+}
+
+// Check if certificate is revoked
+function isRevoked($certName) {
+    $revoked = getRevokedCerts();
+    return isset($revoked[$certName]);
+}
 
 // Handle download
 if (isset($_GET['file'])) {
@@ -61,7 +78,8 @@ function getCertificates($dir) {
                 'info' => $certInfo,
                 'created' => filemtime($certPath),
                 'is_expired' => $isExpired,
-                'days_remaining' => $daysRemaining
+                'days_remaining' => $daysRemaining,
+                'revoked' => isRevoked($name)
             ];
         }
     }
@@ -133,7 +151,9 @@ unset($_SESSION['success'], $_SESSION['error']);
                                     <?= date('Y-m-d', $cert['info']['validFrom_time_t']) ?>
                                     to
                                     <?= date('Y-m-d', $cert['info']['validTo_time_t']) ?>
-                                    <?php if ($cert['is_expired']): ?>
+                                    <?php if ($cert['revoked']): ?>
+                                        <span class="validity revoked">REVOKED</span>
+                                    <?php elseif ($cert['is_expired']): ?>
                                         <span class="validity expired">EXPIRED</span>
                                     <?php elseif ($cert['days_remaining'] <= 7): ?>
                                         <span class="validity expiring">EXPIRING</span>
@@ -151,10 +171,12 @@ unset($_SESSION['success'], $_SESSION['error']);
                             <?php endif; ?>
                             <a href="javascript:void(0)" onclick="PFXExport.show('<?= htmlspecialchars($cert['name'], ENT_QUOTES) ?>')" class="btn btn-sm btn-secondary">📦 Export PFX</a>
                             <a href="renew.php?name=<?= urlencode($cert['name']) ?>" class="btn btn-sm btn-success">🔄 Renew</a>
+                            <?php if (!$cert['revoked']): ?>
                             <form action="revoke.php" method="POST" style="display:inline" onsubmit="return Confirm.revoke('<?= htmlspecialchars($cert['name'], ENT_QUOTES) ?>')">
                                 <input type="hidden" name="name" value="<?= htmlspecialchars($cert['name']) ?>">
                                 <button type="submit" class="btn btn-sm btn-secondary">🚫 Revoke</button>
                             </form>
+                            <?php endif; ?>
                             <form action="delete.php" method="POST" style="display:inline" onsubmit="return Confirm.delete('<?= htmlspecialchars($cert['name'], ENT_QUOTES) ?>')">
                                 <input type="hidden" name="name" value="<?= htmlspecialchars($cert['name']) ?>">
                                 <button type="submit" class="btn btn-sm btn-danger">🗑️ Delete</button>

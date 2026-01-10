@@ -4,16 +4,24 @@ require_once 'lib/logger.php';
 session_start();
 
 define('CA_URL', getenv('CA_URL') ?: 'https://step-ca:9000');
-define('PROVISIONER', getenv('CA_PROVISIONER') ?: 'admin');
 define('ROOT_CERT', getenv('STEP_ROOT') ?: '/home/step/certs/root_ca.crt');
 define('CERT_DIR', '/var/www/html/certs');
+define('REVOKED_FILE', '/var/www/html/certs/.revoked.json');
 
-// Read password from file
-$passwordFile = getenv('CA_PASSWORD_FILE') ?: '/home/step/secrets/password';
-if (file_exists($passwordFile)) {
-    define('CA_PASSWORD', trim(file_get_contents($passwordFile)));
-} else {
-    define('CA_PASSWORD', getenv('CA_PASSWORD') ?: '');
+// Save revoked certificate to tracking file
+function markAsRevoked($name, $serial) {
+    $revoked = [];
+    if (file_exists(REVOKED_FILE)) {
+        $data = json_decode(file_get_contents(REVOKED_FILE), true);
+        if (is_array($data)) {
+            $revoked = $data;
+        }
+    }
+    $revoked[$name] = [
+        'serial' => $serial,
+        'revoked_at' => date('c')
+    ];
+    file_put_contents(REVOKED_FILE, json_encode($revoked, JSON_PRETTY_PRINT));
 }
 
 // Only accept POST requests
@@ -33,9 +41,16 @@ if (empty($name)) {
 // Sanitize
 $name = basename($name);
 $certPath = CERT_DIR . '/' . $name . '.crt';
+$keyPath = CERT_DIR . '/' . $name . '.key';
 
 if (!file_exists($certPath)) {
     $_SESSION['error'] = 'Certificate not found';
+    header('Location: download-cert.php');
+    exit;
+}
+
+if (!file_exists($keyPath)) {
+    $_SESSION['error'] = 'Private key not found - cannot revoke without key';
     header('Location: download-cert.php');
     exit;
 }
@@ -44,55 +59,45 @@ if (!file_exists($certPath)) {
 $certContent = file_get_contents($certPath);
 $certInfo = openssl_x509_parse($certContent);
 
-if (!$certInfo) {
+if (!$certInfo || !isset($certInfo['serialNumberHex'])) {
     $_SESSION['error'] = 'Failed to parse certificate';
     header('Location: download-cert.php');
     exit;
 }
 
-$serialNumber = $certInfo['serialNumber'];
+$serial = $certInfo['serialNumberHex'];
 
-// Create temporary password file
-$pwdFile = tempnam(sys_get_temp_dir(), 'step_pwd_');
-file_put_contents($pwdFile, CA_PASSWORD);
-
-// Revoke certificate
+// Revoke using mTLS with cert and key
 $cmd = sprintf(
-    'step ca revoke %s --provisioner %s --provisioner-password-file %s --ca-url %s --root %s 2>&1',
-    escapeshellarg($serialNumber),
-    escapeshellarg(PROVISIONER),
-    escapeshellarg($pwdFile),
+    'step ca revoke --cert %s --key %s --ca-url %s --root %s 2>&1',
+    escapeshellarg($certPath),
+    escapeshellarg($keyPath),
     escapeshellarg(CA_URL),
     escapeshellarg(ROOT_CERT)
 );
 
 exec($cmd, $output, $code);
 
-// Delete password file
-@unlink($pwdFile);
+$outputStr = implode(' ', $output);
 
+// Check for success or already revoked
 if ($code !== 0) {
-    $errorMsg = implode(' ', $output);
     // Check if already revoked
-    if (stripos($errorMsg, 'already revoked') !== false) {
-        AuditLogger::log(LOG_REVOKE, $name, ['status' => 'already_revoked']);
-        $_SESSION['error'] = 'Certificate is already revoked';
+    if (stripos($outputStr, 'already revoked') !== false) {
+        markAsRevoked($name, $serial);
+        AuditLogger::log(LOG_REVOKE, $name, ['status' => 'already_revoked', 'serial' => $serial]);
+        $_SESSION['success'] = "Certificate '$name' was already revoked";
     } else {
-        if (strlen($errorMsg) > 500) {
-            $errorMsg = substr($errorMsg, 0, 500) . '...';
+        if (strlen($outputStr) > 500) {
+            $outputStr = substr($outputStr, 0, 500) . '...';
         }
-        AuditLogger::log(LOG_REVOKE, $name, ['status' => 'failed', 'error' => $errorMsg]);
-        $_SESSION['error'] = 'Failed to revoke certificate: ' . $errorMsg;
+        AuditLogger::log(LOG_REVOKE, $name, ['status' => 'failed', 'error' => $outputStr, 'serial' => $serial]);
+        $_SESSION['error'] = 'Failed to revoke certificate: ' . $outputStr;
     }
-    header('Location: download-cert.php');
-    exit;
+} else {
+    markAsRevoked($name, $serial);
+    AuditLogger::log(LOG_REVOKE, $name, ['status' => 'success', 'serial' => $serial]);
+    $_SESSION['success'] = "Certificate '$name' has been revoked";
 }
 
-// Log success
-AuditLogger::log(LOG_REVOKE, $name, [
-    'status' => 'success',
-    'serial' => $serialNumber
-]);
-
-$_SESSION['success'] = "Certificate '$name' has been revoked";
 header('Location: download-cert.php');
