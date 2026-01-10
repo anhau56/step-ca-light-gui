@@ -170,7 +170,9 @@ unset($_SESSION['success'], $_SESSION['error']);
                                 <a href="?file=<?= urlencode($cert['key_file']) ?>" class="btn btn-sm btn-key">📥 Key</a>
                             <?php endif; ?>
                             <a href="javascript:void(0)" onclick="PFXExport.show('<?= htmlspecialchars($cert['name'], ENT_QUOTES) ?>')" class="btn btn-sm btn-secondary">📦 Export PFX</a>
+                            <?php if (!$cert['revoked']): ?>
                             <a href="renew.php?name=<?= urlencode($cert['name']) ?>" class="btn btn-sm btn-success">🔄 Renew</a>
+                            <?php endif; ?>
                             <?php if (!$cert['revoked']): ?>
                             <form action="revoke.php" method="POST" style="display:inline" onsubmit="return Confirm.revoke('<?= htmlspecialchars($cert['name'], ENT_QUOTES) ?>')">
                                 <input type="hidden" name="name" value="<?= htmlspecialchars($cert['name']) ?>">

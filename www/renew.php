@@ -7,6 +7,16 @@ define('CA_URL', getenv('CA_URL') ?: 'https://step-ca:9000');
 define('PROVISIONER', getenv('CA_PROVISIONER') ?: 'admin');
 define('ROOT_CERT', getenv('STEP_ROOT') ?: '/home/step/certs/root_ca.crt');
 define('CERT_DIR', '/var/www/html/certs');
+define('REVOKED_FILE', '/var/www/html/certs/.revoked.json');
+
+// Check if certificate is revoked
+function isRevoked($certName) {
+    if (!file_exists(REVOKED_FILE)) {
+        return false;
+    }
+    $data = json_decode(file_get_contents(REVOKED_FILE), true);
+    return is_array($data) && isset($data[$certName]);
+}
 
 // Read password from file
 $passwordFile = getenv('CA_PASSWORD_FILE') ?: '/home/step/secrets/password';
@@ -31,6 +41,13 @@ $keyPath = CERT_DIR . '/' . $name . '.key';
 
 if (!file_exists($certPath)) {
     $_SESSION['error'] = 'Certificate not found';
+    header('Location: download-cert.php');
+    exit;
+}
+
+// Check if certificate is revoked
+if (isRevoked($name)) {
+    $_SESSION['error'] = 'Cannot renew a revoked certificate';
     header('Location: download-cert.php');
     exit;
 }
@@ -77,9 +94,9 @@ foreach ($sans as $san) {
 $pwdFile = tempnam(sys_get_temp_dir(), 'step_pwd_');
 file_put_contents($pwdFile, CA_PASSWORD);
 
-// Generate new certificate with same parameters (default 24h)
+// Generate new certificate with same parameters (default 1 year)
 $cmd = sprintf(
-    'step ca certificate %s %s %s --provisioner %s --provisioner-password-file %s --ca-url %s --root %s --not-after 24h --force%s 2>&1',
+    'step ca certificate %s %s %s --provisioner %s --provisioner-password-file %s --ca-url %s --root %s --not-after 8760h --force%s 2>&1',
     escapeshellarg($hostname),
     escapeshellarg($certPath),
     escapeshellarg($keyPath),
