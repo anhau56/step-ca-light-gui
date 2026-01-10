@@ -1,7 +1,6 @@
 <?php
 require_once 'auth.php';
 require_once 'lib/logger.php';
-session_start();
 
 $CERT_DIR = '/var/www/html/certs';
 $REVOKED_FILE = '/var/www/html/certs/.revoked.json';
@@ -109,11 +108,19 @@ unset($_SESSION['success'], $_SESSION['error']);
     <div class="container wide">
         <div class="header">
             <div class="header-content">
-                <div class="icon">📜</div>
+                <img src="images/logo.png" alt="Vaultica" class="logo">
                 <h1>My Certificates</h1>
                 <p class="subtitle">Download and manage your generated certificates</p>
             </div>
-            <button type="button" class="theme-toggle" id="theme-toggle" title="Toggle theme">🌙</button>
+            <div class="header-actions">
+                <?php if (function_exists('isAuthRequired') && isAuthRequired()): ?>
+                <div class="user-menu">
+                    <span class="username"><?= htmlspecialchars(getCurrentUser()) ?></span>
+                    <a href="logout.php" class="logout-link">Logout</a>
+                </div>
+                <?php endif; ?>
+                <button type="button" class="theme-toggle" id="theme-toggle" title="Toggle theme">🌙</button>
+            </div>
         </div>
 
         <?php if ($success): ?>

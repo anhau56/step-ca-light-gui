@@ -25,8 +25,11 @@ class AuditLogger {
             self::$logFile = '/tmp/step-ca-audit.json';
         }
 
-        // Get current user from auth
-        $user = $_SERVER['PHP_AUTH_USER'] ?? 'anonymous';
+        // Get current user from session or fallback
+        if (session_status() === PHP_SESSION_NONE) {
+            @session_start();
+        }
+        $user = $_SESSION['username'] ?? 'anonymous';
 
         // Build log entry
         $entry = [
@@ -133,6 +136,7 @@ class AuditLogger {
             'renew' => 'Certificate Renewed',
             'export' => 'Certificate Exported (PFX)',
             'login' => 'User Login',
+            'logout' => 'User Logout',
             'api_access' => 'API Access'
         ];
     }
@@ -170,4 +174,5 @@ define('LOG_REVOKE', 'revoke');
 define('LOG_RENEW', 'renew');
 define('LOG_EXPORT', 'export');
 define('LOG_LOGIN', 'login');
+define('LOG_LOGOUT', 'logout');
 define('LOG_API', 'api_access');

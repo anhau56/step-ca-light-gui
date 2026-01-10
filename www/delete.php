@@ -1,7 +1,6 @@
 <?php
 require_once 'auth.php';
 require_once 'lib/logger.php';
-session_start();
 
 define('CERT_DIR', '/var/www/html/certs');
 

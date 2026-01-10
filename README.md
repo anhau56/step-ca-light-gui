@@ -1,18 +1,21 @@
-# Step CA GUI
+# Vaultica CA GUI
 
 A web interface for managing certificates with [Smallstep CA](https://smallstep.com/docs/step-ca).
+
+![Vaultica](www/images/logo.png)
 
 ## Features
 
 - Generate TLS certificates with custom hostnames and SANs
-- Configurable certificate validity (24h to 1 year)
+- Configurable certificate validity (24h to 1 year, max 10 years)
 - Certificate management: view details, renew, revoke, delete
 - Export certificates as PFX/P12 for Windows/Java
 - Search and filter certificates
 - Dark mode support
-- Audit logging of all operations
+- Audit logging of all operations (login, logout, certificate actions)
 - REST API for automation
-- Password-protected interface (except CA downloads)
+- Session-based authentication with login page
+- User management via CLI
 
 ## Prerequisites
 
@@ -40,7 +43,12 @@ A web interface for managing certificates with [Smallstep CA](https://smallstep.
    docker compose up -d
    ```
 
-4. **Access the web interface**
+4. **Create an admin user**
+   ```bash
+   docker exec -it step-ca-gui php /var/www/html/user-cli.php add admin
+   ```
+
+5. **Access the web interface**
 
    Open http://localhost:8080 in your browser.
 
@@ -58,7 +66,12 @@ If you want to initialize a new CA:
    docker compose up -d
    ```
 
-3. The password is automatically saved in `step-data/secrets/password`
+3. The CA password is automatically saved in `step-data/secrets/password`
+
+4. Create your first user:
+   ```bash
+   docker exec -it step-ca-gui php /var/www/html/user-cli.php add admin
+   ```
 
 ## Configuration
 
@@ -71,23 +84,49 @@ Environment variables in `docker-compose.yml`:
 | `CA_PASSWORD_FILE` | Path to password file | `/home/step/secrets/password` |
 | `STEP_ROOT` | Path to root CA certificate | `/home/step/certs/root_ca.crt` |
 
+### Certificate Duration
+
+The CA is configured with:
+- **Minimum duration**: 5 minutes
+- **Default duration**: 1 year (8760h)
+- **Maximum duration**: 10 years (87600h)
+
 ## Authentication
 
-The web interface is password protected (except for CA certificate downloads).
+The web interface uses session-based authentication with a login page. CA certificate downloads remain public.
 
-**Default credentials:** `admin` / `admin`
+### User Management CLI
 
-### Managing Users
-
-The password file is located at `www/.passwd`. Format: `username:password_hash`
+Manage users via the command line:
 
 ```bash
-# Add a new user
-php -r "echo 'newuser:' . password_hash('newpassword', PASSWORD_DEFAULT) . PHP_EOL;" >> www/.passwd
+# Add a new user (will prompt for password)
+docker exec -it step-ca-gui php /var/www/html/user-cli.php add <username>
 
-# Generate new password hash
-php -r "echo password_hash('newpassword', PASSWORD_DEFAULT);"
+# Change a user's password
+docker exec -it step-ca-gui php /var/www/html/user-cli.php passwd <username>
+
+# Delete a user
+docker exec -it step-ca-gui php /var/www/html/user-cli.php delete <username>
+
+# List all users
+docker exec -it step-ca-gui php /var/www/html/user-cli.php list
+
+# Generate password hash (for scripting)
+docker exec step-ca-gui php /var/www/html/user-cli.php hash 'mypassword'
 ```
+
+### Password Requirements
+
+- Minimum 8 characters
+- Username must start with a letter
+- Username can contain letters, numbers, underscores and hyphens
+
+### Password File
+
+Users are stored in `www/.passwd` with format: `username:password_hash`
+
+If no users exist, authentication is disabled (open access).
 
 ## REST API
 
@@ -144,6 +183,7 @@ curl -X DELETE -H "X-API-Key: your_key" \
 All operations are logged to `www/logs/audit.json`. View logs at http://localhost:8080/logs.php
 
 Logged actions:
+- User login / logout
 - Certificate generation
 - Certificate download
 - Certificate deletion
@@ -175,6 +215,8 @@ Logged actions:
 - Unencrypted keys are excluded from git via `.gitignore`
 - Password and API key files are excluded from git
 - Generated certificates are stored in `www/certs/` (excluded from git)
+- Session cookies are HTTP-only
+- Passwords are hashed with bcrypt (PASSWORD_DEFAULT)
 
 ## Encrypting Secrets
 
@@ -187,6 +229,12 @@ openssl enc -aes-256-cbc -salt -pbkdf2 -in root_ca_key -out root_ca_key.enc
 openssl enc -aes-256-cbc -salt -pbkdf2 -in password -out password.enc
 ```
 
+## Version History
+
+- **v0.3** - Vaultica branding, session-based authentication, user management CLI
+- **v0.2** - Certificate revocation, renewal, duration configuration
+- **v0.1** - Initial release with basic certificate generation
+
 ## License
 
-Internal use only.
+Internal use only - Vaultica

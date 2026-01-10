@@ -1,41 +1,92 @@
 <?php
-// Password file location
-$PASSWD_FILE = getenv('PASSWD_FILE') ?: '/var/www/html/.passwd';
+/**
+ * Session-based authentication
+ * Users are stored in .passwd file (format: username:password_hash)
+ * Manage users with: php user-cli.php
+ */
 
-function authenticate($passwdFile) {
-    if (!file_exists($passwdFile)) {
-        return true; // No password file = no auth required
+// Password file location
+define('PASSWD_FILE', getenv('PASSWD_FILE') ?: '/var/www/html/.passwd');
+
+// Session configuration
+ini_set('session.cookie_httponly', 1);
+ini_set('session.use_strict_mode', 1);
+
+/**
+ * Check if user is authenticated
+ */
+function isAuthenticated() {
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    return isset($_SESSION['authenticated']) && $_SESSION['authenticated'] === true;
+}
+
+/**
+ * Get current username
+ */
+function getCurrentUser() {
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    return $_SESSION['username'] ?? 'anonymous';
+}
+
+/**
+ * Load users from password file
+ */
+function loadUsers() {
+    if (!file_exists(PASSWD_FILE)) {
+        return [];
     }
 
-    // Read password file (format: username:password_hash)
     $users = [];
-    $lines = file($passwdFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    $lines = file(PASSWD_FILE, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     foreach ($lines as $line) {
         if (strpos($line, ':') !== false) {
             list($user, $hash) = explode(':', $line, 2);
             $users[trim($user)] = trim($hash);
         }
     }
-
-    if (empty($users)) {
-        return true; // Empty file = no auth required
-    }
-
-    // Check credentials
-    if (isset($_SERVER['PHP_AUTH_USER']) && isset($_SERVER['PHP_AUTH_PW'])) {
-        $username = $_SERVER['PHP_AUTH_USER'];
-        $password = $_SERVER['PHP_AUTH_PW'];
-
-        if (isset($users[$username]) && password_verify($password, $users[$username])) {
-            return true;
-        }
-    }
-
-    // Request authentication
-    header('WWW-Authenticate: Basic realm="Step CA GUI"');
-    header('HTTP/1.0 401 Unauthorized');
-    echo 'Authentication required';
-    exit;
+    return $users;
 }
 
-authenticate($PASSWD_FILE);
+/**
+ * Verify user credentials
+ */
+function verifyCredentials($username, $password) {
+    $users = loadUsers();
+
+    if (!isset($users[$username])) {
+        return false;
+    }
+
+    return password_verify($password, $users[$username]);
+}
+
+/**
+ * Check if authentication is required (users exist in passwd file)
+ */
+function isAuthRequired() {
+    $users = loadUsers();
+    return !empty($users);
+}
+
+/**
+ * Require authentication - redirect to login if not authenticated
+ */
+function requireAuth() {
+    // If no users configured, allow access
+    if (!isAuthRequired()) {
+        return;
+    }
+
+    if (!isAuthenticated()) {
+        $currentPage = $_SERVER['REQUEST_URI'];
+        header('Location: login.php?redirect=' . urlencode($currentPage));
+        exit;
+    }
+}
+
+// Auto-require authentication when this file is included
+requireAuth();

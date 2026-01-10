@@ -42,11 +42,19 @@ $users = AuditLogger::getUsers();
     <div class="container wide">
         <div class="header">
             <div class="header-content">
-                <div class="icon">📋</div>
+                <img src="images/logo.png" alt="Vaultica" class="logo">
                 <h1>Audit Logs</h1>
                 <p class="subtitle">View all certificate operations</p>
             </div>
-            <button type="button" class="theme-toggle" id="theme-toggle" title="Toggle theme">🌙</button>
+            <div class="header-actions">
+                <?php if (function_exists('isAuthRequired') && isAuthRequired()): ?>
+                <div class="user-menu">
+                    <span class="username"><?= htmlspecialchars(getCurrentUser()) ?></span>
+                    <a href="logout.php" class="logout-link">Logout</a>
+                </div>
+                <?php endif; ?>
+                <button type="button" class="theme-toggle" id="theme-toggle" title="Toggle theme">🌙</button>
+            </div>
         </div>
 
         <!-- Filters -->

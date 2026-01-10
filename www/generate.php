@@ -1,7 +1,6 @@
 <?php
 require_once 'auth.php';
 require_once 'lib/logger.php';
-session_start();
 
 // CONFIGURATION
 define('CA_URL', getenv('CA_URL') ?: 'https://step-ca:9000');

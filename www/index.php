@@ -1,6 +1,5 @@
 <?php
 require_once 'auth.php';
-session_start();
 $success = $_SESSION['success'] ?? null;
 $error = $_SESSION['error'] ?? null;
 unset($_SESSION['success'], $_SESSION['error']);
@@ -17,11 +16,19 @@ unset($_SESSION['success'], $_SESSION['error']);
     <div class="container">
         <div class="header">
             <div class="header-content">
-                <div class="icon">🔒</div>
+                <img src="images/logo.png" alt="Vaultica" class="logo">
                 <h1>Certificate Generator</h1>
                 <p class="subtitle">Generate a TLS certificate for your server</p>
             </div>
-            <button type="button" class="theme-toggle" id="theme-toggle" title="Toggle theme">🌙</button>
+            <div class="header-actions">
+                <?php if (function_exists('isAuthRequired') && isAuthRequired()): ?>
+                <div class="user-menu">
+                    <span class="username"><?= htmlspecialchars(getCurrentUser()) ?></span>
+                    <a href="logout.php" class="logout-link">Logout</a>
+                </div>
+                <?php endif; ?>
+                <button type="button" class="theme-toggle" id="theme-toggle" title="Toggle theme">🌙</button>
+            </div>
         </div>
 
         <?php

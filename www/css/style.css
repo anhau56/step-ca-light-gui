@@ -1,26 +1,31 @@
-/* CSS Variables for theming */
+/* CSS Variables for theming - Vaultica colors */
 :root {
+    /* Vaultica Colors */
+    --vaultica-navy: #0f1a42;
+    --vaultica-green: #65bc7b;
+    --vaultica-green-dark: #4fa366;
+
     /* Colors */
-    --primary-start: #667eea;
-    --primary-end: #764ba2;
+    --primary-start: #65bc7b;
+    --primary-end: #4fa366;
     --primary-gradient: linear-gradient(135deg, var(--primary-start) 0%, var(--primary-end) 100%);
 
     /* Backgrounds */
-    --bg-body: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --bg-body: linear-gradient(135deg, #0f1a42 0%, #1a2a5e 100%);
     --bg-container: #ffffff;
     --bg-card: #f8f9fa;
     --bg-input: #ffffff;
 
     /* Text */
-    --text-primary: #333333;
-    --text-secondary: #666666;
-    --text-muted: #999999;
+    --text-primary: #0f1a42;
+    --text-secondary: #4a5568;
+    --text-muted: #718096;
     --text-inverse: #ffffff;
 
     /* Borders */
-    --border-color: #e0e0e0;
-    --border-input: #e0e0e0;
-    --border-input-focus: #667eea;
+    --border-color: #e2e8f0;
+    --border-input: #e2e8f0;
+    --border-input-focus: #65bc7b;
 
     /* Status colors */
     --success-bg: #d4edda;
@@ -37,33 +42,33 @@
     --info-border: #b6d4fe;
 
     /* Buttons */
-    --btn-success: #28a745;
-    --btn-success-hover: #218838;
+    --btn-success: #65bc7b;
+    --btn-success-hover: #4fa366;
     --btn-danger: #dc3545;
     --btn-danger-hover: #c82333;
-    --btn-secondary: #6c757d;
-    --btn-secondary-hover: #5a6268;
+    --btn-secondary: #0f1a42;
+    --btn-secondary-hover: #1a2a5e;
 
     /* Shadows */
-    --shadow-container: 0 20px 60px rgba(0,0,0,0.3);
-    --shadow-button: 0 10px 20px rgba(102, 126, 234, 0.4);
-    --shadow-card: 0 2px 8px rgba(0,0,0,0.1);
+    --shadow-container: 0 20px 60px rgba(15, 26, 66, 0.3);
+    --shadow-button: 0 10px 20px rgba(101, 188, 123, 0.4);
+    --shadow-card: 0 2px 8px rgba(15, 26, 66, 0.1);
 }
 
 /* Dark mode */
 [data-theme="dark"] {
-    --bg-body: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-    --bg-container: #1e1e2e;
-    --bg-card: #2d2d3d;
-    --bg-input: #2d2d3d;
+    --bg-body: linear-gradient(135deg, #070d21 0%, #0f1a42 100%);
+    --bg-container: #0f1a42;
+    --bg-card: #1a2a5e;
+    --bg-input: #1a2a5e;
 
-    --text-primary: #e0e0e0;
-    --text-secondary: #b0b0b0;
-    --text-muted: #808080;
+    --text-primary: #ffffff;
+    --text-secondary: #b0c4de;
+    --text-muted: #8899bb;
 
-    --border-color: #404050;
-    --border-input: #404050;
-    --border-input-focus: #667eea;
+    --border-color: #2a3a6e;
+    --border-input: #2a3a6e;
+    --border-input-focus: #65bc7b;
 
     --success-bg: #1e3a2f;
     --success-text: #75d99a;
@@ -122,6 +127,7 @@ body {
 
 .header-content {
     flex: 1;
+    text-align: center;
 }
 
 .theme-toggle {
@@ -136,6 +142,43 @@ body {
 
 .theme-toggle:hover {
     background: var(--border-color);
+}
+
+/* User menu */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-menu {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 6px 12px;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.user-menu .username {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.user-menu .logout-link {
+    color: var(--text-muted);
+    text-decoration: none;
+    padding: 2px 8px;
+    border-left: 1px solid var(--border-color);
+    margin-left: 4px;
+    transition: color 0.2s;
+}
+
+.user-menu .logout-link:hover {
+    color: var(--btn-danger);
 }
 
 /* Typography */
@@ -155,6 +198,14 @@ h2 {
     color: var(--text-secondary);
     margin-bottom: 30px;
     font-size: 14px;
+}
+
+/* Logo */
+.logo {
+    display: block;
+    max-width: 200px;
+    height: auto;
+    margin: 0 auto 20px;
 }
 
 /* Icon */

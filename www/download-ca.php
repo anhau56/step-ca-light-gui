@@ -50,11 +50,13 @@ $intermediateInfo = getCertInfo($INTERMEDIATE_CERT);
     <div class="container">
         <div class="header">
             <div class="header-content">
-                <div class="icon">🏛️</div>
+                <img src="images/logo.png" alt="Vaultica" class="logo">
                 <h1>CA Certificates</h1>
                 <p class="subtitle">Download and install the CA certificates to trust issued certificates</p>
             </div>
-            <button type="button" class="theme-toggle" id="theme-toggle" title="Toggle theme">🌙</button>
+            <div class="header-actions">
+                <button type="button" class="theme-toggle" id="theme-toggle" title="Toggle theme">🌙</button>
+            </div>
         </div>
 
         <div class="info-box">
