@@ -1,21 +1,21 @@
 services:
-  step-ca:
-    image: smallstep/step-ca:latest
-    container_name: step-ca
-    volumes:
-      - ./step-data:/home/step
-      - ./init-step-ca.sh:/init-step-ca.sh:ro
-    entrypoint: /init-step-ca.sh
-    environment:
-      - CA_NAME=Step Hausner-CA
-      - CA_DNS=ca,localhost,ca.home.hausner.space,192.168.16.25
-      - CA_PROVISIONER=ca-admin
+#  step-ca:
+#    image: smallstep/step-ca:latest
+#    container_name: step-ca
+#    volumes:
+#      - ./step-data:/home/step
+#      - ./init-step-ca.sh:/init-step-ca.sh:ro
+#    entrypoint: /init-step-ca.sh
+#    environment:
+#      - CA_NAME=Step Hausner-CA
+#      - CA_DNS=ca,localhost,ca.home.hausner.space,192.168.16.25
+#      - CA_PROVISIONER=ca-admin
   
-    networks:
-      qnet:
-        ipv4_address: 192.168.16.25
+#    networks:
+#      qnet:
+#        ipv4_address: 192.168.16.25
 
-    restart: unless-stopped
+#    restart: unless-stopped
 
   web-gui:
     build: .
