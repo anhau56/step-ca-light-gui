@@ -21,7 +21,6 @@ services:
     build: .
     container_name: step-ca-gui
     volumes:
-      - www:/var/www/html
       - ./step-data/_data:/home/step:ro
     environment:
       - CA_URL=https://192.168.16.25:9000
@@ -40,6 +39,3 @@ networks:
   qnet:
     external: true
     name: qnet-static-eth0-7dbf98
-
-volumes:
-  www:
