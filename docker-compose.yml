@@ -42,4 +42,4 @@ networks:
     name: qnet-static-eth0-7dbf98
 
 volumes:
-  step-ca-gui:
+  www:
