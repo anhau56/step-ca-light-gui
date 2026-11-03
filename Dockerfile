@@ -18,6 +18,9 @@ RUN STEP_VERSION=$(curl -s https://api.github.com/repos/smallstep/cli/releases/l
 # Vérifier l'installation
 RUN step version
 
+# GUI-Dateien in das Apache-Webverzeichnis kopieren
+COPY --chown=www-data:www-data www/ /var/www/html/
+
 # Créer le répertoire pour les certificats
 RUN mkdir -p /var/www/html/certs && \
     chown -R www-data:www-data /var/www/html/certs && \
