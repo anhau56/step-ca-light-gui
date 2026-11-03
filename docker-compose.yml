@@ -32,8 +32,8 @@ services:
       qnet:
         ipv4_address: 192.168.16.26
     
-    depends_on:
-      - step-ca
+    #depends_on:
+    #  - step-ca
     restart: unless-stopped
 
 networks:
