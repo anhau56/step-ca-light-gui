@@ -21,7 +21,7 @@ services:
     build: .
     container_name: step-ca-gui
     volumes:
-      - ./www:/var/www/html
+      - step-ca-gui:/var/www/html
       - ./step-data:/home/step:ro
     environment:
       - CA_URL=https://ca.home.hausner.space:9000
